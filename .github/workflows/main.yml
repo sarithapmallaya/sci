@@ -1,27 +1,36 @@
-name: Auto-Update Case Table
+name: HTML to Markdown Automation
 
 on:
   push:
     paths:
-      - [cite_start]'**.html' # Triggers on any HTML file upload [cite: 3]
-  workflow_dispatch: # Enables the manual "Run workflow" button
+      - '**.html' # Trigger automatically on HTML upload
+  workflow_dispatch: # Enable manual "Run workflow" button
 
 jobs:
-  convert-html:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Essential for the action to save README.md back to your repo
+      contents: write # Critical: Allows the Action to update README.md
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - name: Install Dependencies
-        run: pip install beautifulsoup4 pandas tabulate lxml
-      - name: Run Parser
+
+      - name: Install Libraries
+        run: |
+          pip install beautifulsoup4 pandas tabulate lxml
+
+      - name: Run Parser Script
         run: python convert.py
-      - name: Commit and Push
+
+      - name: Save README Updates
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Auto-update: Markdown table with PDF API links"
+          commit_message: "Auto-sync: Judgment table with direct PDF links"
           file_pattern: 'README.md'
+          skip_dirty_check: true # Prevents failure if nothing has changed
